@@ -465,14 +465,14 @@
     if (!reporte.horaLlegada) return alert('⚠️ Falta confirmar la llegada al cliente');
     if (!reporte.horaEntrega) return alert('⚠️ Falta confirmar la entrega');
 
-  fetch('https://script.google.com/macros/s/AKfycbzp8GfkioScoRMu2c2_01Q8o5No0RvS9SC7isNqdUHXrxqWZerJR3Jy7CEp2RgGK2aX/exec', {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(reporte)
-  })
-  .then(() => console.log('✅ Guardado en Google Sheets'))
-  .catch(err => console.error('❌ Error:', err));
+ fetch('https://script.google.com/macros/s/AKfycbzp8GfkioScoRMu2c2_01Q8o5No0RvS9SC7isNqdUHXrxqWZerJR3Jy7CEp2RgGK2aX/exec', {
+  method: 'POST',
+  mode: 'no-cors',
+  headers: { 'Content-Type': 'text/plain;charset=utf-8' },  // 👈 CAMBIO CLAVE
+  body: JSON.stringify(reporte)
+})
+.then(() => console.log('✅ Enviado a Google Sheets'))
+.catch(err => console.error('❌ Error:', err));
 
     console.log('📤 Reporte enviado:', reporte);
 
