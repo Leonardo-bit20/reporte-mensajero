@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte de Mensajero</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background: #f0ebf8;
+    padding: 20px;
+    color: #202124;
+  }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .header {
+    background: #673ab7;
+    color: white;
+    padding: 24px;
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  .form-card {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 12px;
+    border: 1px solid #dadce0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+
+  .form-card.required {
+    border-left: 4px solid #673ab7;
+  }
+
+  .question {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    color: #202124;
+  }
+
+  .question .required-star {
+    color: #d93025;
+    margin-left: 4px;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #5f6368;
+    margin-bottom: 12px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border 0.2s;
+    background: white;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border: 2px solid #673ab7;
+    padding: 11px 13px;
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  .radio-group, .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .radio-group label, .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+
+  .radio-group label:hover, .checkbox-group label:hover {
+    background: #f1f3f4;
+  }
+
+  input[type="radio"], input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #673ab7;
+    cursor: pointer;
+  }
+
+  .btn {
+    background: #673ab7;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .btn:hover {
+    background: #5e35b1;
+    box-shadow: 0 2px 6px rgba(103,58,183,0.4);
+  }
+
+  .btn:disabled {
+    background: #dadce0;
+    cursor: not-allowed;
+    color: #9aa0a6;
+  }
+
+  .btn-secondary {
+    background: #f1f3f4;
+    color: #673ab7;
+    margin-left: 8px;
+  }
+
+  .btn-secondary:hover {
+    background: #e8eaed;
+  }
+
+  .btn-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+  }
+
+  .location-box {
+    background: #e8f0fe;
+    border-left: 4px solid #1a73e8;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .location-box.active { display: block; }
+
+  .location-box.success {
+    background: #e6f4ea;
+    border-left-color: #34a853;
+  }
+
+  .location-box.error {
+    background: #fce8e6;
+    border-left-color: #d93025;
+  }
+
+  .timestamp {
+    font-family: 'Courier New', monospace;
+    background: #f1f3f4;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .success-msg {
+    display: none;
+    background: #e6f4ea;
+    border: 1px solid #34a853;
+    color: #137333;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .success-msg.show { display: block; }
+
+  .success-msg h2 { margin-bottom: 8px; }
+
+  .progress-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+
+  .progress-step {
+    flex: 1;
+    height: 6px;
+    background: #dadce0;
+    border-radius: 3px;
+    transition: background 0.3s;
+  }
+
+  .progress-step.active { background: #673ab7; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 480px) {
+    .header h1 { font-size: 22px; }
+    .form-card { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- HEADER -->
+  <div class="header">
+    <h1>📦 Reporte de Mensajero</h1>
+    <p>Registra cada etapa de tu entrega con hora y ubicación en tiempo real</p>
+  </div>
+
+  <!-- BARRA DE PROGRESO -->
+  <div class="progress-bar">
+    <div class="progress-step active" id="step1"></div>
+    <div class="progress-step" id="step2"></div>
+    <div class="progress-step" id="step3"></div>
+    <div class="progress-step" id="step4"></div>
+  </div>
+
+  <form id="deliveryForm">
+
+    <!-- DATOS DEL MENSAJERO -->
+    <div class="form-card required">
+      <div class="question">1. Nombre del mensajero <span class="required-star">*</span></div>
+      <input type="text" id="nombre" placeholder="Ej: Juan Pérez" required>
+    </div>
+
+    <div class="form-card">
+      <div class="question">2. ID del pedido / Guía</div>
+      <input type="text" id="pedidoId" placeholder="Ej: ORD-2024-00123">
+    </div>
+
+    <!-- PASO 1: SALIDA -->
+    <div class="form-card required">
+      <div class="question">3. ¿Confirmas tu salida? <span class="required-star">*</span></div>
+      <div class="hint">Se registrará la hora automáticamente.</div>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="salida" value="si" onchange="confirmarSalida()">
+          ✅ Sí, inicié ruta
+        </label>
+      </div>
+      <div class="location-box" id="salidaInfo"></div>
+    </div>
+
+    <!-- PASO 2: LLEGADA AL CLIENTE -->
+    <div class="form-card required hidden" id="cardLlegada">
+      <div class="question">4. Confirmación de llegada al cliente <span class="required-star">*</span></div>
+      <div class="hint">Al confirmar, se registrará tu ubicación GPS actual.</div>
+      <button type="button" class="btn" onclick="confirmarLlegada()">📍 Confirmar llegada</button>
+      <div class="location-box" id="llegadaInfo"></div>
+    </div>
+
+    <!-- PASO 3: ENTREGA -->
+    <div class="form-card required hidden" id="cardEntrega">
+      <div class="question">5. Confirmación de entrega del pedido <span class="required-star">*</span></div>
+      <div class="hint">Indica si el cliente recibió el pedido.</div>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="entrega" value="entregado" onchange="confirmarEntrega('entregado')">
+          ✅ Pedido entregado
+        </label>
+        <label>
+          <input type="radio" name="entrega" value="rechazado" onchange="confirmarEntrega('rechazado')">
+          ❌ Pedido rechazado
+        </label>
+        <label>
+          <input type="radio" name="entrega" value="ausente" onchange="confirmarEntrega('ausente')">
+          🚪 Cliente ausente
+        </label>
+      </div>
+      <div class="location-box" id="entregaInfo"></div>
+    </div>
+
+    <!-- FIRMA / OBSERVACIONES -->
+    <div class="form-card hidden" id="cardObservaciones">
+      <div class="question">6. Observaciones (opcional)</div>
+      <textarea id="observaciones" placeholder="Ej: Cliente recibió conforme, empaque en buen estado..."></textarea>
+    </div>
+
+    <!-- BOTÓN ENVIAR -->
+    <div class="btn-group hidden" id="btnGroup">
+      <button type="submit" class="btn">Enviar reporte</button>
+      <button type="button" class="btn btn-secondary" onclick="resetForm()">Limpiar</button>
+    </div>
+
+  </form>
+
+  <!-- MENSAJE DE ÉXITO -->
+  <div class="success-msg" id="successMsg">
+    <h2>✅ ¡Reporte enviado!</h2>
+    <p>Los datos fueron registrados correctamente.</p>
+    <div id="resumen" style="margin-top:16px; text-align:left; font-size:13px;"></div>
+    <button class="btn" style="margin-top:16px" onclick="resetForm()">Nuevo reporte</button>
+  </div>
+</div>
+
+<script>
+  // Estado del formulario
+  const reporte = {
+    nombre: '',
+    pedidoId: '',
+    horaSalida: null,
+    ubicacionSalida: null,
+    horaLlegada: null,
+    ubicacionLlegada: null,
+    horaEntrega: null,
+    ubicacionEntrega: null,
+    estadoEntrega: null,
+    observaciones: ''
+  };
+
+  // Guardar nombre y pedido
+  document.getElementById('nombre').addEventListener('input', e => reporte.nombre = e.target.value);
+  document.getElementById('pedidoId').addEventListener('input', e => reporte.pedidoId = e.target.value);
+
+  // Obtener ubicación GPS con promesa
+  function obtenerUbicacion() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject('Geolocalización no soportada por el navegador');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve({
+          lat: pos.coords.latitude.toFixed(6),
+          lng: pos.coords.longitude.toFixed(6),
+          precision: pos.coords.accuracy.toFixed(0)
+        }),
+        err => reject(err.message),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
+  }
+
+  // Formatear hora
+  function horaActual() {
+    return new Date().toLocaleString('es-ES', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+  }
+
+  // PASO 1: Confirmar salida
+  async function confirmarSalida() {
+    if (!reporte.nombre.trim()) {
+      alert('⚠️ Primero ingresa tu nombre');
+      document.querySelector('input[name="salida"]').checked = false;
+      return;
+    }
+
+    const box = document.getElementById('salidaInfo');
+    box.className = 'location-box active';
+    box.textContent = '⏳ Obteniendo ubicación...';
+
+    reporte.horaSalida = horaActual();
+
+    try {
+      const ubi = await obtenerUbicacion();
+      reporte.ubicacionSalida = ubi;
+      box.className = 'location-box active success';
+      box.innerHTML = `✅ <b>Salida registrada:</b> <span class="timestamp">${reporte.horaSalida}</span><br>
+                       📍 Lat: ${ubi.lat}, Lng: ${ubi.lng} (±${ubi.precision}m)`;
+    } catch (err) {
+      reporte.ubicacionSalida = null;
+      box.className = 'location-box active error';
+      box.innerHTML = `✅ <b>Salida registrada:</b> <span class="timestamp">${reporte.horaSalida}</span><br>
+                       ⚠️ Ubicación no disponible: ${err}`;
+    }
+
+    document.getElementById('step2').classList.add('active');
+    document.getElementById('cardLlegada').classList.remove('hidden');
+  }
+
+  // PASO 2: Confirmar llegada al cliente
+  async function confirmarLlegada() {
+    const box = document.getElementById('llegadaInfo');
+    box.className = 'location-box active';
+    box.textContent = '⏳ Obteniendo ubicación...';
+
+    reporte.horaLlegada = horaActual();
+
+    try {
+      const ubi = await obtenerUbicacion();
+      reporte.ubicacionLlegada = ubi;
+      box.className = 'location-box active success';
+      box.innerHTML = `✅ <b>Llegada registrada:</b> <span class="timestamp">${reporte.horaLlegada}</span><br>
+                       📍 Lat: ${ubi.lat}, Lng: ${ubi.lng} (±${ubi.precision}m)`;
+    } catch (err) {
+      box.className = 'location-box active error';
+      box.innerHTML = `✅ <b>Llegada registrada:</b> <span class="timestamp">${reporte.horaLlegada}</span><br>
+                       ⚠️ Ubicación no disponible: ${err}`;
+    }
+
+    document.getElementById('step3').classList.add('active');
+    document.getElementById('cardEntrega').classList.remove('hidden');
+    document.getElementById('cardObservaciones').classList.remove('hidden');
+  }
+
+  // PASO 3: Confirmar entrega
+  async function confirmarEntrega(estado) {
+    const box = document.getElementById('entregaInfo');
+    box.className = 'location-box active';
+    box.textContent = '⏳ Obteniendo ubicación...';
+
+    reporte.estadoEntrega = estado;
+    reporte.horaEntrega = horaActual();
+
+    try {
+      const ubi = await obtenerUbicacion();
+      reporte.ubicacionEntrega = ubi;
+      box.className = 'location-box active success';
+      box.innerHTML = `✅ <b>Entrega registrada (${estado}):</b> <span class="timestamp">${reporte.horaEntrega}</span><br>
+                       📍 Lat: ${ubi.lat}, Lng: ${ubi.lng} (±${ubi.precision}m)`;
+    } catch (err) {
+      box.className = 'location-box active error';
+      box.innerHTML = `✅ <b>Entrega registrada (${estado}):</b> <span class="timestamp">${reporte.horaEntrega}</span><br>
+                       ⚠️ Ubicación no disponible: ${err}`;
+    }
+
+    document.getElementById('step4').classList.add('active');
+    document.getElementById('btnGroup').classList.remove('hidden');
+  }
+
+  // ENVÍO DEL FORMULARIO
+  document.getElementById('deliveryForm').addEventListener('submit', e => {
+    e.preventDefault();
+
+    reporte.observaciones = document.getElementById('observaciones').value;
+
+    // Validaciones finales
+    if (!reporte.nombre.trim()) return alert('⚠️ Falta el nombre del mensajero');
+    if (!reporte.horaSalida) return alert('⚠️ Falta confirmar la salida');
+    if (!reporte.horaLlegada) return alert('⚠️ Falta confirmar la llegada al cliente');
+    if (!reporte.horaEntrega) return alert('⚠️ Falta confirmar la entrega');
+
+    // Aquí puedes enviar los datos a tu backend:
+    // fetch('/api/reportes', { method: 'POST', body: JSON.stringify(reporte) });
+
+    console.log('📤 Reporte enviado:', reporte);
+
+    // Mostrar resumen
+    const resumen = `
+      <b>👤 Mensajero:</b> ${reporte.nombre}<br>
+      <b>🆔 Pedido:</b> ${reporte.pedidoId || 'N/A'}<br>
+      <b>🚀 Salida:</b> ${reporte.horaSalida}<br>
+      <b>📍 Llegada:</b> ${reporte.horaLlegada}<br>
+      <b>📦 Entrega:</b> ${reporte.horaEntrega} — ${reporte.estadoEntrega}<br>
+      ${reporte.observaciones ? `<b>📝 Observaciones:</b> ${reporte.observaciones}` : ''}
+    `;
+    document.getElementById('resumen').innerHTML = resumen;
+    document.getElementById('deliveryForm').classList.add('hidden');
+    document.getElementById('successMsg').classList.add('show');
+  });
+
+  // RESET
+  function resetForm() {
+    document.getElementById('deliveryForm').reset();
+    document.getElementById('deliveryForm').classList.remove('hidden');
+    document.getElementById('successMsg').classList.remove('show');
+
+    ['salidaInfo','llegadaInfo','entregaInfo'].forEach(id => {
+      const el = document.getElementById(id);
+      el.className = 'location-box';
+      el.innerHTML = '';
+    });
+
+    ['cardLlegada','cardEntrega','cardObservaciones','btnGroup'].forEach(id => {
+      document.getElementById(id).classList.add('hidden');
+    });
+
+    ['step2','step3','step4'].forEach(id => {
+      document.getElementById(id).classList.remove('active');
+    });
+
+    Object.keys(reporte).forEach(k => reporte[k] = null);
+    reporte.nombre = '';
+    reporte.pedidoId = '';
+    reporte.observaciones = '';
+  }
+</script>
+
+</body>
+</html>
